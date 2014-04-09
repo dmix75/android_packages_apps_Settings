@@ -100,6 +100,10 @@ public class SecuritySettings extends RestrictedSettingsFragment
     private static final String KEY_SMS_SECURITY_CHECK_PREF = "sms_security_check_limit";
     private static final String SLIDE_LOCK_TIMEOUT_DELAY = "slide_lock_timeout_delay";
     private static final String SLIDE_LOCK_SCREENOFF_DELAY = "slide_lock_screenoff_delay";
+    
+    
+    // DanOS Additions
+    private boolean mActiveDisplay = false;
 
     private PackageManager mPM;
     private DevicePolicyManager mDPM;
@@ -159,6 +163,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
 
         // CM - allows for calling the settings screen with stock or cm view
         boolean isCmSecurity = false;
+        boolean isActiveDisplay = false;
         Bundle args = getArguments();
         if (args != null) {
             isCmSecurity = args.getBoolean("cm_security");
@@ -181,11 +186,15 @@ public class SecuritySettings extends RestrictedSettingsFragment
             if (singleUser && mLockPatternUtils.isLockScreenDisabled()) {
                 resid = R.xml.security_settings_lockscreen;
             } else {
-                resid = R.xml.security_settings_chooser;
+                int ad = Settings.System.getInt(getContentResolver(), Settings.System.ENABLE_ACTIVE_DISPLAY, 0);
+                isActiveDisplay = (ad == 1) ? true : false;
+                resid = isActiveDisplay ? R.xml.security_settings_active_display : 
+                                          R.xml.security_settings_chooser;
+                Log.d(TAG, "++++ Active Display Enabled: " + isActiveDisplay);
             }
         } else if (mLockPatternUtils.usingBiometricWeak() &&
                 mLockPatternUtils.isBiometricWeakInstalled()) {
-            resid = R.xml.security_settings_biometric_weak;
+            	resid = R.xml.security_settings_biometric_weak;
         } else {
             switch (mLockPatternUtils.getKeyguardStoredPasswordQuality()) {
                 case DevicePolicyManager.PASSWORD_QUALITY_SOMETHING:
@@ -237,6 +246,8 @@ public class SecuritySettings extends RestrictedSettingsFragment
         if (mLockAfter != null) {
             setupLockAfterPreference();
             updateLockAfterPreferenceSummary();
+        } else if (!mLockPatternUtils.isLockScreenDisabled() && isActiveDisplay) {
+            addPreferencesFromResource(R.xml.security_settings_active_display_edit);
         } else if (!mLockPatternUtils.isLockScreenDisabled() && isCmSecurity) {
             addPreferencesFromResource(R.xml.security_settings_slide_delay_cyanogenmod);
 
@@ -255,7 +266,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
             mSlideLockScreenOffDelay.setValue(String.valueOf(slideScreenOffDelay));
             updateSlideAfterScreenOffSummary();
             mSlideLockScreenOffDelay.setOnPreferenceChangeListener(this);
-        }
+        } 
 
         if (isCmSecurity) {
             // lock instantly on power key press
@@ -678,6 +689,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
         }
         final String key = preference.getKey();
 
+        Log.d(TAG,"+++++ " + key);
         final LockPatternUtils lockPatternUtils = mChooseLockSettingsHelper.utils();
         if (KEY_UNLOCK_SET_OR_CHANGE.equals(key)) {
             startFragment(this, "com.android.settings.ChooseLockGeneric$ChooseLockGenericFragment",
@@ -766,7 +778,7 @@ public class SecuritySettings extends RestrictedSettingsFragment
             // is called by grabbing the value from lockPatternUtils.  We can't set it here
             // because mBiometricWeakLiveliness could be null
             return;
-        }
+        } 
         createPreferenceHierarchy();
     }
 

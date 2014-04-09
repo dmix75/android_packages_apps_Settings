@@ -17,43 +17,35 @@
     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings"
     android:title="@string/ad_settings_title" >
 
-    <SwitchPreference
-        android:key="ad_enable"
-        android:persistent="false"
-        android:title="@string/ad_enable_title"
-        android:summaryOff="@string/ad_enable_summary_off"
-        android:summaryOn="@string/ad_enable_summary_on" />
-
     <CheckBoxPreference
         android:key="ad_text"
         android:persistent="false"
         android:title="@string/ad_text_title"
-        android:summary="@string/ad_text_summary"
-        android:dependency="ad_enable"/>
+	android:summary="@string/ad_text_summary"/>
 
     <CheckBoxPreference
         android:key="ad_all_notifications"
         android:persistent="false"
         android:title="@string/ad_all_notifications_title"
-        android:summary="@string/ad_all_notifications_summary"
-        android:dependency="ad_enable"/>
+	android:summary="@string/ad_all_notifications_summary"/>
 
     <CheckBoxPreference
         android:key="ad_pocket_mode"
         android:persistent="false"
         android:title="@string/ad_pocket_mode_title"
-        android:summary="@string/ad_pocket_mode_summary"
-        android:dependency="ad_enable"/>
+	android:summary="@string/ad_pocket_mode_summary"/>
 
+    <!--
     <ListPreference
         android:key="ad_redisplay"
         android:persistent="false"
         android:dialogTitle="@string/ad_redisplay_title"
         android:title="@string/ad_redisplay_title"
         android:entries="@array/ad_redisplay_entries"
-        android:entryValues="@array/ad_redisplay_values"
-        android:dependency="ad_enable"/>
+	android:entryValues="@array/ad_redisplay_values"/>
+        -->
 
+<!--
     <PreferenceCategory
         android:key="ad_customizations"
         android:title="@string/ad_customizations_title" />
@@ -62,15 +54,13 @@
             android:key="ad_show_date"
             android:persistent="false"
             android:title="@string/ad_show_date_title"
-            android:summary="@string/ad_show_date_summary"
-            android:dependency="ad_enable"/>
+	    android:summary="@string/ad_show_date_summary"/>
 
         <CheckBoxPreference
             android:key="ad_show_ampm"
             android:persistent="false"
             android:title="@string/ad_show_ampm_title"
-            android:summary="@string/ad_show_ampm_summary"
-            android:dependency="ad_enable"/>
+	    android:summary="@string/ad_show_ampm_summary"/>
 
         <com.android.settings.chameleonos.SeekBarPreference
             android:key="ad_brightness"
@@ -81,7 +71,18 @@
             settings:min="0"
             settings:unitsLeft=""
             settings:unitsRight="%"
-            android:defaultValue="100"
-            android:dependency="ad_enable" />
+	    android:defaultValue="100"/>
+
+    <PreferenceCategory
+        android:key="ad_enable_save"
+        android:title="@string/ad_enable_save_settings_title" />
+            -->
+
+	    <SwitchPreference
+		android:key="ad_enable"
+		android:persistent="false"
+		android:title="@string/ad_enable_title"
+		android:summaryOff="@string/ad_enable_summary_off"
+		android:summaryOn="@string/ad_enable_summary_on" />
 
 </PreferenceScreen>

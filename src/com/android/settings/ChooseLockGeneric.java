@@ -1,9 +1,11 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
+ * 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
+ * 
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,9 +38,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.util.Log;
+import android.provider.Settings;
 
 import com.android.internal.widget.LockPatternUtils;
-import com.android.settings.ConfirmLockPattern.ConfirmLockPatternFragment;
 
 import java.util.List;
 
@@ -64,10 +67,14 @@ public class ChooseLockGeneric extends PreferenceActivity {
     }
 
     public static class ChooseLockGenericFragment extends SettingsPreferenceFragment {
+        
+
+        static final String TAG = "ChooseLockGenericFragment";
         private static final int MIN_PASSWORD_LENGTH = 4;
         private static final String KEY_UNLOCK_BACKUP_INFO = "unlock_backup_info";
         private static final String KEY_UNLOCK_SET_OFF = "unlock_set_off";
         private static final String KEY_UNLOCK_SET_NONE = "unlock_set_none";
+        private static final String KEY_UNLOCK_SET_ACTIVE_DISLAY = "unlock_set_active_display";
         private static final String KEY_UNLOCK_SET_BIOMETRIC_WEAK = "unlock_set_biometric_weak";
         private static final String KEY_UNLOCK_SET_PIN = "unlock_set_pin";
         private static final String KEY_UNLOCK_SET_PASSWORD = "unlock_set_password";
@@ -79,6 +86,8 @@ public class ChooseLockGeneric extends PreferenceActivity {
         private static final String WAITING_FOR_CONFIRMATION = "waiting_for_confirmation";
         private static final String FINISH_PENDING = "finish_pending";
         public static final String MINIMUM_QUALITY_KEY = "minimum_quality";
+
+
 
         private static final boolean ALWAY_SHOW_TUTORIAL = true;
 
@@ -138,19 +147,25 @@ public class ChooseLockGeneric extends PreferenceActivity {
                 Preference preference) {
             final String key = preference.getKey();
             boolean handled = true;
+            boolean mActiveDisplayEnabled = false;
 
             EventLog.writeEvent(EventLogTags.LOCK_SCREEN_TYPE, key);
-
             if (KEY_UNLOCK_SET_OFF.equals(key)) {
                 updateUnlockMethodAndFinish(
                         DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED, true);
             } else if (KEY_UNLOCK_SET_NONE.equals(key)) {
                 updateUnlockMethodAndFinish(
                         DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED, false);
+            } else if (KEY_UNLOCK_SET_ACTIVE_DISLAY.equals(key)) {
+                Settings.System.putInt(getContentResolver(),
+                        Settings.System.ENABLE_ACTIVE_DISPLAY, 1);
+                mActiveDisplayEnabled = true;
+                updateUnlockMethodAndFinish(
+                        DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED, false);
             } else if (KEY_UNLOCK_SET_BIOMETRIC_WEAK.equals(key)) {
                 updateUnlockMethodAndFinish(
                         DevicePolicyManager.PASSWORD_QUALITY_BIOMETRIC_WEAK, false);
-            }else if (KEY_UNLOCK_SET_PATTERN.equals(key)) {
+            } else if (KEY_UNLOCK_SET_PATTERN.equals(key)) {
                 updateUnlockMethodAndFinish(
                         DevicePolicyManager.PASSWORD_QUALITY_SOMETHING, false);
             } else if (KEY_UNLOCK_SET_PIN.equals(key)) {
@@ -161,6 +176,10 @@ public class ChooseLockGeneric extends PreferenceActivity {
                         DevicePolicyManager.PASSWORD_QUALITY_ALPHABETIC, false);
             } else {
                 handled = false;
+            }
+            if (!mActiveDisplayEnabled) {
+                Settings.System.putInt(getContentResolver(),
+                        Settings.System.ENABLE_ACTIVE_DISPLAY, 0);
             }
             return handled;
         }
@@ -439,3 +458,4 @@ public class ChooseLockGeneric extends PreferenceActivity {
 
     }
 }
+

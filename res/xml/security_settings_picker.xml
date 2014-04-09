@@ -26,6 +26,13 @@
             android:title="@string/unlock_set_unlock_none_title"
             android:persistent="false"/>
 
+        <!-- Active display -->
+    <PreferenceScreen
+        android:key="unlock_set_active_display"
+        android:fragment="com.android.settings.chameleonos.ActiveDisplaySettings"
+        android:title="@string/ad_settings_title"
+        android:summary="@string/ad_settings_summary" />
+    
     <PreferenceScreen
             android:key="unlock_set_biometric_weak"
             android:title="@string/unlock_set_unlock_biometric_weak_title"

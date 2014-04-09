@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2012 The CyanogenMod Project
+<!--
+     Copyright (C) 2012-2013 The CyanogenMod Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,19 +14,19 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/system_interface_title"
-    xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Active display -->
-    <PreferenceScreen
-        android:key="active_display"
-        android:fragment="com.android.settings.chameleonos.ActiveDisplaySettings"
-        android:title="@string/ad_settings_title"
-        android:summary="@string/ad_settings_summary">
-    </PreferenceScreen>
+    <PreferenceCategory
+        android:key="active_display_edit_category"
+        android:title="@string/ad_settings_title">
 
+	    <PreferenceScreen
+		android:key="active_display_edit"
+		android:fragment="com.android.settings.chameleonos.ActiveDisplaySettings"
+		android:title="@string/ad_settings_title"
+		android:summary="@string/ad_settings_summary" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

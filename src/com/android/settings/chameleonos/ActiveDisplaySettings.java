@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2013 The ChameleonOS Project
- *
+ * 
+  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +18,7 @@
 package com.android.settings.chameleonos;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -26,6 +28,8 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.provider.Settings;
+import android.util.Log;
+
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 
@@ -39,19 +43,13 @@ public class ActiveDisplaySettings extends SettingsPreferenceFragment implements
     private static final String KEY_SHOW_TEXT = "ad_text";
     private static final String KEY_ALL_NOTIFICATIONS = "ad_all_notifications";
     private static final String KEY_POCKET_MODE = "ad_pocket_mode";
-    private static final String KEY_REDISPLAY = "ad_redisplay";
-    private static final String KEY_SHOW_DATE = "ad_show_date";
-    private static final String KEY_SHOW_AMPM = "ad_show_ampm";
-    private static final String KEY_BRIGHTNESS = "ad_brightness";
+
+    public static final String ACTIVE_DISPLAY_ENABLED = KEY_ENABLED;
 
     private SwitchPreference mEnabledPref;
     private CheckBoxPreference mShowTextPref;
-    private CheckBoxPreference mShowDatePref;
-    private CheckBoxPreference mShowAmPmPref;
     private CheckBoxPreference mAllNotificationsPref;
     private CheckBoxPreference mPocketModePref;
-    private ListPreference mRedisplayPref;
-    private SeekBarPreference mBrightnessLevel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,43 +76,16 @@ public class ActiveDisplaySettings extends SettingsPreferenceFragment implements
         if (!hasProximitySensor()) {
             getPreferenceScreen().removePreference(mPocketModePref);
         }
-
-        PreferenceScreen prefSet = getPreferenceScreen();
-        mRedisplayPref = (ListPreference) prefSet.findPreference(KEY_REDISPLAY);
-        mRedisplayPref.setOnPreferenceChangeListener(this);
-        long timeout = Settings.System.getLong(getContentResolver(),
-                Settings.System.ACTIVE_DISPLAY_REDISPLAY, 0);
-        mRedisplayPref.setValue(String.valueOf(timeout));
-        updateRedisplaySummary(timeout);
-
-        mShowDatePref = (CheckBoxPreference) findPreference(KEY_SHOW_DATE);
-        mShowDatePref.setChecked((Settings.System.getInt(getContentResolver(),
-                Settings.System.ACTIVE_DISPLAY_SHOW_DATE, 0) == 1));
-
-        mShowAmPmPref = (CheckBoxPreference) findPreference(KEY_SHOW_AMPM);
-        mShowAmPmPref.setChecked((Settings.System.getInt(getContentResolver(),
-                Settings.System.ACTIVE_DISPLAY_SHOW_AMPM, 0) == 1));
-
-        mBrightnessLevel = (SeekBarPreference) findPreference(KEY_BRIGHTNESS);
-        mBrightnessLevel.setValue(Settings.System.getInt(getContentResolver(),
-                Settings.System.ACTIVE_DISPLAY_BRIGHTNESS, 100));
-        mBrightnessLevel.setOnPreferenceChangeListener(this);
     }
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (preference == mRedisplayPref) {
-            int timeout = Integer.valueOf((String) newValue);
-            updateRedisplaySummary(timeout);
-            return true;
-        } else if (preference == mEnabledPref) {
+        if (preference == mEnabledPref) {
+            boolean enabled = ((Boolean) newValue).booleanValue();
             Settings.System.putInt(getContentResolver(),
-                    Settings.System.ENABLE_ACTIVE_DISPLAY,
-                    ((Boolean) newValue).booleanValue() ? 1 : 0);
-            return true;
-        } else if (preference == mBrightnessLevel) {
-            int brightness = ((Integer)newValue).intValue();
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.ACTIVE_DISPLAY_BRIGHTNESS, brightness);
+                    Settings.System.ENABLE_ACTIVE_DISPLAY, enabled ? 1 : 0);
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(ACTIVE_DISPLAY_ENABLED,enabled);
+            finish();
             return true;
         }
         return false;
@@ -139,27 +110,11 @@ public class ActiveDisplaySettings extends SettingsPreferenceFragment implements
             Settings.System.putInt(getContentResolver(),
                     Settings.System.ACTIVE_DISPLAY_POCKET_MODE,
                     value ? 1 : 0);
-        } else if (preference == mShowDatePref) {
-            value = mShowDatePref.isChecked();
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.ACTIVE_DISPLAY_SHOW_DATE,
-                    value ? 1 : 0);
-        } else if (preference == mShowAmPmPref) {
-            value = mShowAmPmPref.isChecked();
-            Settings.System.putInt(getContentResolver(),
-                    Settings.System.ACTIVE_DISPLAY_SHOW_AMPM,
-                    value ? 1 : 0);
         } else {
             return super.onPreferenceTreeClick(preferenceScreen, preference);
         }
 
         return true;
-    }
-
-    private void updateRedisplaySummary(long value) {
-        mRedisplayPref.setSummary(mRedisplayPref.getEntries()[mRedisplayPref.findIndexOfValue("" + value)]);
-        Settings.System.putLong(getContentResolver(),
-                Settings.System.ACTIVE_DISPLAY_REDISPLAY, value);
     }
 
     private boolean hasProximitySensor() {
